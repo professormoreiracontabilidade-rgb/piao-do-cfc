@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arcade CFC Premium</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;user-select:none;-webkit-tap-highlight-color:transparent}
+body{min-height:100vh;background:radial-gradient(circle at top,#5aa0ff,#2f67c8 42%,#173d82 76%,#0d2248);color:#fff;font-family:Arial,Helvetica,sans-serif;overflow:hidden}
+.tela{display:none;min-height:100vh;padding:16px;text-align:center}.ativa{display:block}
+h1{color:#ffd400;font-size:30px;margin:10px 0;text-shadow:2px 2px 4px #000}p{font-size:18px;line-height:1.35}
+button{background:#ffd400;color:#111;border:none;padding:15px 28px;border-radius:35px;font-size:20px;font-weight:bold;margin:10px;cursor:pointer;box-shadow:0 6px 0 #a98700}
+button:active{transform:translateY(4px);box-shadow:0 2px 0 #a98700}
+.seta{font-size:54px;color:#ffd400;margin-bottom:-22px;position:relative;z-index:20;filter:drop-shadow(0 0 7px #000)}
+.area-roleta{position:relative;width:330px;height:330px;margin:18px auto}
+.roleta{width:330px;height:330px;border-radius:50%;border:8px solid #fff;position:relative;overflow:hidden;background:conic-gradient(#e53935 0deg 60deg,#1e88e5 60deg 120deg,#43a047 120deg 180deg,#fdd835 180deg 240deg,#8e24aa 240deg 300deg,#fb8c00 300deg 360deg);box-shadow:0 0 35px rgba(255,255,255,.45);transform:rotate(0deg)}
+.roleta::after{content:"";position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle,transparent 44%,rgba(255,255,255,.28) 45%,transparent 48%),linear-gradient(120deg,transparent 35%,rgba(255,255,255,.18),transparent 65%);pointer-events:none}
+.nome-setor{position:absolute;width:124px;height:34px;left:95px;top:144px;transform-origin:70px 20px;font-size:13px;font-weight:900;color:#fff;text-shadow:2px 2px 3px #000;text-align:center;line-height:1.05}
+.s1{transform:rotate(30deg) translateY(-119px)}.s2{transform:rotate(90deg) translateY(-119px)}.s3{transform:rotate(150deg) translateY(-119px)}.s4{transform:rotate(210deg) translateY(-119px)}.s5{transform:rotate(270deg) translateY(-119px)}.s6{transform:rotate(330deg) translateY(-119px)}
+.centro{position:absolute;width:92px;height:92px;background:#111;border:5px solid #fff;border-radius:50%;top:50%;left:50%;transform:translate(-50%,-50%);display:flex;justify-content:center;align-items:center;font-size:42px;z-index:5;box-shadow:0 0 15px #000}
+.resultado{font-size:23px;color:#ffd400;font-weight:bold;margin-top:12px;min-height:40px}
+.card{background:#fff;color:#111;border-radius:24px;padding:18px;margin:15px auto 50px;font-size:20px;line-height:1.35;text-align:left;max-width:680px;max-height:72vh;overflow:auto}.card strong{color:#092b62}
+.meta{font-size:14px;color:#555;margin-bottom:10px}
+.opcao{width:100%;display:block;background:#f0f0f0;color:#111;box-shadow:none;border-radius:16px;padding:14px;margin:10px 0;font-size:18px;text-align:left}.opcao:disabled{opacity:1}
+.correta{background:#17a64a!important;color:#fff!important}.errada{background:#d62828!important;color:#fff!important}
+.comentario{margin-top:14px;background:#fff3bf;color:#111;padding:13px;border-radius:15px;font-size:17px}
+.painel{background:rgba(255,255,255,.14);border:2px solid rgba(255,255,255,.30);border-radius:24px;padding:22px;margin:18px auto;max-width:520px}.placar{font-size:32px;color:#ffd400;margin:22px 0;font-weight:bold}
+footer{position:fixed;bottom:7px;left:0;width:100%;text-align:center;font-size:13px;color:#fff}
+@media(max-width:390px){h1{font-size:27px}.area-roleta{width:300px;height:300px}.roleta{width:300px;height:300px}.nome-setor{left:80px;top:130px}.centro{width:82px;height:82px;font-size:36px}.s1{transform:rotate(30deg) translateY(-106px)}.s2{transform:rotate(90deg) translateY(-106px)}.s3{transform:rotate(150deg) translateY(-106px)}.s4{transform:rotate(210deg) translateY(-106px)}.s5{transform:rotate(270deg) translateY(-106px)}.s6{transform:rotate(330deg) translateY(-106px)}}
+</style>
+</head>
+<body>
+<audio id="musicaRoleta" src="musica.mp3" loop preload="auto"></audio>
+
+<div class="tela ativa" id="roletaTela">
+ <h1>🎡 ROLETA DO CFC</h1>
+ <p>Responda ao quiz sorteado.</p>
+ <div class="seta">▼</div>
+ <div class="area-roleta">
+  <div class="roleta" id="roleta">
+   <div class="nome-setor s1">CONT.<br>GERAL</div><div class="nome-setor s2">CUSTOS</div><div class="nome-setor s3">PÚBLICA</div>
+   <div class="nome-setor s4">AUDITORIA</div><div class="nome-setor s5">PERÍCIA</div><div class="nome-setor s6">ÉTICA</div>
+   <div class="centro">🎯</div>
+  </div>
+ </div>
+ <button id="botaoRoleta" onclick="controlarRoleta()">GIRAR ROLETA</button>
+ <div class="resultado" id="resultadoRoleta"></div>
+</div>
+
+<div class="tela" id="quizTela"><h1 id="tituloQuiz">Quiz</h1><div class="card"><div id="pergunta"></div><div id="alternativas"></div><div id="comentario"></div></div></div>
+<div class="tela" id="fimTela"><h1>🏆 RESULTADO FINAL</h1><div class="painel"><div class="placar" id="placarFinal"></div><button onclick="reiniciar()">GIRAR NOVAMENTE</button></div></div>
+<footer>Curso de Contabilidade Professor Moreira</footer>
+
+<script src="dados/geral.js"></script>
+<script src="dados/custos.js"></script>
+<script src="dados/publica.js"></script>
+<script src="dados/auditoria.js"></script>
+<script src="dados/pericia.js"></script>
+<script src="dados/etica.js"></script>
+
+<script>
+const bancoQuestoes=[...questoesGeral,...questoesCustos,...questoesPublica,...questoesAuditoria,...questoesPericia,...questoesEtica];
+const materias=["Contabilidade Geral","Custos","Contabilidade Pública","Auditoria","Perícia","Ética"];
+let quizAtual=[], materiaSorteada="", indiceSorteado=0, questaoAtual=0, acertos=0, girando=false, parando=false, angulo=0, velocidade=0, animacao=null;
+
+function abrirTela(id){document.querySelectorAll(".tela").forEach(t=>t.classList.remove("ativa"));document.getElementById(id).classList.add("ativa")}
+function tocarMusica(){const a=document.getElementById("musicaRoleta");a.volume=1;a.currentTime=0;a.play().catch(()=>{})}
+function pararMusicaSuave(){const a=document.getElementById("musicaRoleta");let fade=setInterval(()=>{if(a.volume>0.06){a.volume=Math.max(0,a.volume-0.06)}else{clearInterval(fade);a.pause();a.currentTime=0;a.volume=1}},120)}
+function controlarRoleta(){if(!girando) iniciarGiroLivre(); else if(girando&&!parando) pararRoleta()}
+function iniciarGiroLivre(){girando=true;parando=false;velocidade=85;document.getElementById("resultadoRoleta").innerHTML="Girando rápido...";document.getElementById("botaoRoleta").innerHTML="🛑 PARAR";document.getElementById("botaoRoleta").disabled=false;document.getElementById("roleta").style.transition="none";tocarMusica();animarGiro()}
+function animarGiro(){angulo+=velocidade;document.getElementById("roleta").style.transform=`rotate(${angulo}deg)`;animacao=requestAnimationFrame(animarGiro)}
+function pararRoleta(){
+ if(parando)return;parando=true;document.getElementById("resultadoRoleta").innerHTML="Desacelerando...";document.getElementById("botaoRoleta").innerHTML="AGUARDE...";document.getElementById("botaoRoleta").disabled=true;
+ indiceSorteado=Math.floor(Math.random()*materias.length);materiaSorteada=materias[indiceSorteado];cancelAnimationFrame(animacao);
+ const setor=360/materias.length, centro=indiceSorteado*setor+setor/2, atual=((angulo%360)+360)%360;let alvo=(360-centro);alvo=((alvo%360)+360)%360;let diferenca=alvo-atual;if(diferenca<0)diferenca+=360;
+ const anguloFinal=angulo+diferenca+(8*360), r=document.getElementById("roleta");r.style.transition="transform 3.8s cubic-bezier(.06,.86,.16,1)";r.style.transform=`rotate(${anguloFinal}deg)`;angulo=anguloFinal;
+ setTimeout(()=>{pararMusicaSuave();document.getElementById("resultadoRoleta").innerHTML="🎯 Sorteado: "+materiaSorteada;girando=false;parando=false;document.getElementById("botaoRoleta").disabled=false;document.getElementById("botaoRoleta").innerHTML="GIRAR ROLETA";setTimeout(()=>iniciarQuiz(),1300)},3900)
+}
+function embaralhar(lista){for(let i=lista.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[lista[i],lista[j]]=[lista[j],lista[i]]}return lista}
+function iniciarQuiz(){questaoAtual=0;acertos=0;quizAtual=embaralhar(bancoQuestoes.filter(q=>q.materia===materiaSorteada)).slice(0,5);document.getElementById("tituloQuiz").innerHTML=materiaSorteada;abrirTela("quizTela");mostrarQuestao()}
+function mostrarQuestao(){
+ const q=quizAtual[questaoAtual];document.getElementById("comentario").innerHTML="";
+ document.getElementById("pergunta").innerHTML=`<div class="meta">${q.banca} • ${q.ano} • ${q.assunto} • ${q.nivel}</div><strong>Questão ${questaoAtual+1} de ${quizAtual.length}</strong><br><br>${q.enunciado}`;
+ let h="";q.alternativas.forEach((opcao,i)=>{h+=`<button class="opcao" onclick="responder(${i})">${String.fromCharCode(65+i)}) ${opcao}</button>`});document.getElementById("alternativas").innerHTML=h
+}
+function responder(indice){
+ const q=quizAtual[questaoAtual], b=document.querySelectorAll(".opcao");b.forEach(x=>x.disabled=true);
+ if(indice===q.correta){b[indice].classList.add("correta");acertos++}else{b[indice].classList.add("errada");b[q.correta].classList.add("correta")}
+ document.getElementById("comentario").innerHTML=`<div class="comentario"><strong>Comentário do Professor Moreira:</strong><br>${q.comentario}</div>`;
+ setTimeout(()=>{questaoAtual++; if(questaoAtual<quizAtual.length) mostrarQuestao(); else finalizarQuiz()},3900)
+}
+function finalizarQuiz(){abrirTela("fimTela");document.getElementById("placarFinal").innerHTML=`${materiaSorteada}<br><br>Você acertou ${acertos} de ${quizAtual.length}<br><br>${estrelas(acertos,quizAtual.length)}`}
+function estrelas(a,t){const p=a/t;if(p===1)return"⭐⭐⭐⭐⭐";if(p>=.7)return"⭐⭐⭐⭐";if(p>=.5)return"⭐⭐⭐";if(p>=.3)return"⭐⭐";return"⭐"}
+function reiniciar(){document.getElementById("resultadoRoleta").innerHTML="";document.getElementById("botaoRoleta").innerHTML="GIRAR ROLETA";document.getElementById("botaoRoleta").disabled=false;abrirTela("roletaTela")}
+</script>
+</body>
+</html>
