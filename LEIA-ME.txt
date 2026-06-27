@@ -1,0 +1,25 @@
+ARCADE CFC PREMIUM - BANCO DE DADOS MODULAR
+
+Arquivos:
+- index.html
+- musica.mp3  -> coloque sua música com exatamente esse nome
+- dados/geral.js
+- dados/custos.js
+- dados/publica.js
+- dados/auditoria.js
+- dados/pericia.js
+- dados/etica.js
+
+Como aumentar o banco:
+1. Abra o arquivo da matéria dentro da pasta dados.
+2. Copie uma questão.
+3. Cole abaixo.
+4. Troque id, assunto, enunciado, alternativas, correta e comentário.
+
+Campo 'correta':
+0 = alternativa A
+1 = alternativa B
+2 = alternativa C
+3 = alternativa D
+
+O jogo sorteia automaticamente 5 questões da matéria sorteada.
